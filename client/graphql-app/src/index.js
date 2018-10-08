@@ -22,15 +22,20 @@ persistCache({
   storage: window.localStorage,
 })
 
+const defaultOptions = {
+  query: {
+    fetchPolicy: 'cache-first'
+  }
+}
+
 export const client = new ApolloClient({
   link,
   cache,
+  defaultOptions,
   clientState: {
     defaults, //The initial data you want to write to the Apollo cache when the client is initialized
   }
 })
-
-
 
 ReactDOM.render(
   <ApolloProvider client={client}>
