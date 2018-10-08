@@ -8,11 +8,13 @@
     "apollo-cache-persist": "^0.1.1",
     "apollo-link": "^1.2.3",
     "apollo-link-state": "^0.4.2",
+    "aws-appsync-react": "^1.1.4",
     "graphql": "^14.0.2",
     "react": "^16.5.2",
     "react-apollo": "^2.2.4",
     "react-dom": "^16.5.2",
-    "react-scripts": "2.0.4"
+    "react-scripts": "2.0.4",
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "react-scripts start",

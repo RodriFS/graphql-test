@@ -24,7 +24,7 @@ persistCache({
 
 const defaultOptions = {
   query: {
-    fetchPolicy: 'cache-first'
+    fetchPolicy: 'cache-and-network'
   }
 }
 

@@ -1,6 +1,8 @@
 import React from 'react';
-import { Query, Mutation } from "react-apollo";
+import { Query } from "react-apollo";
 import gql from "graphql-tag";
+import { graphql } from 'react-apollo';
+const uuid = require('uuid/v4');
 
 const GET_USER = gql`
       {
@@ -22,58 +24,69 @@ const POST_USER = gql`
 
 
 
-export default class TestComponent extends React.Component {
+class TestComponent extends React.Component {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      name: 'Robert',
+      lastname: 'P',
+    }
+  }
 
-  state = {
-    name: 'John',
-    lastname: 'Q',
+  handleSubmit = (event) => {
+    this.props.add(this.state.name, this.state.lastname);
+    event.preventDefault();
   }
 
   render() {
-    const { name, lastname } = this.state
     return (
       <div>
         <Query query={GET_USER}>
           {({loading, error, data, client}) => {
-              if (loading) return <p>Loading...</p>;
+            if (loading) return <p>Loading...</p>;
               if (error) {
                 try {
                   console.log('Network down!');
-                  data = client.readQuery({ query: GET_USER })
+                  data = client.readQuery({ query: GET_USER }, true)
+                  console.log(client)
                 } catch (err) {
-                  return <p>Error :(</p>;
+                  return <p>'Error :('</p>;
+                  }
                 }
-              }
-              return <p>{data.userSchemas[0].name} {data.userSchemas[0].lastname}</p>
-          }}
-        </Query>
-
-        <Mutation mutation={POST_USER}
-          variables={{ name, lastname }}>
-            {(PostUser, {loading, error, data, client}) => {
-              if (loading) return <p>Loading...</p>;
-              if (error) {
-                try {
-                  console.log('Network down!');
-                  data = client.readQuery({ query: GET_USER })
-                  data = client.writeQuery({
-                    query: GET_USER,
-                    data: {userSchemas: [...data.userSchemas, {__typename: 'userSchema' , name, lastname}]} });
-                } catch (err) {
-                  return <p>Error :(</p>;
-                }
-              }
-              return <button onClick={e => {
-                  e.preventDefault();
-                  PostUser({variables: { name, lastname }});
-                }}>
-                Submit
-              </button>
-            }}
-        </Mutation>
+                return data.userSchemas.map(item => {
+                  return <p key={item.name}>{item.name} {item.lastname}</p>
+                })
+              }}
+            </Query>
+          <button onClick={this.handleSubmit}>Submit</button>
       </div>
-
     )
   }
 }
+
+
+const postUser = graphql(POST_USER, {
+  options: { errorPolicy: 'all' },
+  props: ({ mutate } ) => ({
+    add: (name, lastname) => mutate ({
+      variables: {name, lastname},
+      optimisticResponse: {
+        __typename: 'Mutation',
+        createUserSchema: {
+          name,
+          lastname,
+          __typename: 'userSchema',
+          id: uuid(),
+        }
+      },
+      update: (store, { data: { createUserSchema }}) => {
+        const data = store.readQuery({ query: GET_USER });
+        data.userSchemas.push(createUserSchema);
+        store.writeQuery({query: GET_USER, data})
+      }
+    })
+  })
+})(TestComponent)
+
+export default postUser;
