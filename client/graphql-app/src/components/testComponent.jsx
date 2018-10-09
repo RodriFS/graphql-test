@@ -1,27 +1,9 @@
 import React from 'react';
 import { Query } from "react-apollo";
-import gql from "graphql-tag";
 import { graphql } from 'react-apollo';
+import { GET_USER } from '../graphql/queries';
+import { POST_USER } from '../graphql/mutations';
 const uuid = require('uuid/v4');
-
-const GET_USER = gql`
-      {
-        userSchemas {
-          name
-          lastname
-        }
-      }
-    `;
-
-const POST_USER = gql`
-      mutation PostUser ($name: String!, $lastname: String!) {
-        createUserSchema (data: {name: $name, lastname: $lastname}) {
-          name
-          lastname
-        }
-      }
-      `;
-
 
 
 class TestComponent extends React.Component {
@@ -44,22 +26,16 @@ class TestComponent extends React.Component {
       <div>
         <Query query={GET_USER}>
           {({loading, error, data, client}) => {
-            if (loading) return <p>Loading...</p>;
-              if (error) {
-                try {
-                  console.log('Network down!');
-                  data = client.readQuery({ query: GET_USER }, true)
-                  console.log(client)
-                } catch (err) {
-                  return <p>'Error :('</p>;
-                  }
-                }
-                return data.userSchemas.map(item => {
-                  return <p key={item.name}>{item.name} {item.lastname}</p>
-                })
-              }}
-            </Query>
-          <button onClick={this.handleSubmit}>Submit</button>
+            if (loading) return <p>Loading...</p>
+            if (error) {
+              return <p>'Error :('</p>;
+            }
+            return data.userSchemas.map(item => {
+              return <p key={item.name}>{item.name} {item.lastname}</p>
+            })
+          }}
+        </Query>
+        <button onClick={this.handleSubmit}>Submit</button>
       </div>
     )
   }

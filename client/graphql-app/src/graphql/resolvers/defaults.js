@@ -1,6 +1,6 @@
-export const defaults = {
+export const initialState = {
   userSchemas: [{
-    __typename: 'userSchemas',
+    __typename: 'userSchema',
     name: 'No Name',
     lastname: 'No Lastname'
   }]
